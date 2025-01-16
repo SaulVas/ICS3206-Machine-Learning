@@ -1,0 +1,16 @@
+# requirements.txt
+
+albucore==0.0.23
+albumentations==2.0.0
+annotated-types==0.7.0
+numpy==2.2.1
+opencv-python==4.10.0.84
+opencv-python-headless==4.10.0.84
+pydantic==2.10.5
+pydantic_core==2.27.2
+PyYAML==6.0.2
+scipy==1.15.0
+simsimd==6.2.1
+stringzilla==3.11.3
+tqdm==4.67.1
+typing_extensions==4.12.2

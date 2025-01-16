@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 from typing import Dict
 from skimage.util import random_noise
-from skimage import color
 
 # pylint: disable=all
 
@@ -134,18 +133,6 @@ def apply_augmentations(image: np.ndarray) -> Dict[str, np.ndarray]:
         shift_y *= np.random.choice([-1, 1])
         augmented_images[f"shift_{i}"] = shift_image(image, shift_x, shift_y)
 
-    # Color manipulation (saturation adjustment)
-    # Level 1: Slight enhancement, Level 2: Moderate boost, Level 3: Strong boost
-    def adjust_saturation(img, factor):
-        # Convert BGR to HSV
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        h, s, v = cv2.split(hsv)
-        # Multiply the saturation channel by the factor and clip
-        s = np.clip(s.astype(np.int32) * factor, 0, 255).astype(np.uint8)
-        # Merge channels and convert back to BGR
-        hsv = cv2.merge([h, s, v])
-        return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-
     # Color jet effect with different intensity levels
     # Level 1: Subtle blend, Level 2: Medium blend, Level 3: Strong blend
     def apply_jet(img, alpha):
@@ -167,9 +154,9 @@ def apply_augmentations(image: np.ndarray) -> Dict[str, np.ndarray]:
         "noise_1": lambda img: add_noise(img, 0.001),
         "noise_2": lambda img: add_noise(img, 0.01),
         "noise_3": lambda img: add_noise(img, 0.03),
-        "blur_1": lambda img: cv2.GaussianBlur(img, (3, 3), 0.5),
-        "blur_2": lambda img: cv2.GaussianBlur(img, (7, 7), 0),
-        "blur_3": lambda img: cv2.GaussianBlur(img, (11, 11), 0),
+        "blur_1": lambda img: cv2.GaussianBlur(img, (7, 7), 0.5),
+        "blur_2": lambda img: cv2.GaussianBlur(img, (11, 11), 0),
+        "blur_3": lambda img: cv2.GaussianBlur(img, (21, 21), 0),
         "rotation_1": lambda img: rotate_image(img, 2),
         "rotation_2": lambda img: rotate_image(img, 5),
         "rotation_3": lambda img: rotate_image(img, 30),
@@ -194,7 +181,7 @@ def apply_augmentations(image: np.ndarray) -> Dict[str, np.ndarray]:
     }
 
     # Create 5 random combined augmentations
-    for i in range(5):
+    for i in range(10):
         combined_img, name = create_combined_augmentation(image, augmentation_funcs)
         augmented_images[name] = combined_img
         # Optionally log the combination created

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>report.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="saul-vassallo-ics-3206-submission">Saul Vassallo ICS-3206 Submission</h1>
+<h2 id="table-of-completion">Table of Completion</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dataset Collection</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Dataset Augmentation</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Implementation of a template matching system</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Good evaluation of the template-matching system</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Investigation of deep learning approaches</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>High Quality Report</td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="dataset-creation">Dataset Creation</h2>
+<h3 id="dataset-collection">Dataset Collection</h3>
+<p>For the collection of original screen shots of constellations the following considerations had to be answered:</p>
+<ol>
+<li>How many constellations were to be included in the dataset</li>
+<li>How many images per constellation were to be collected</li>
+<li>Which source website the constellation images would be taken from</li>
+</ol>
+<p>The method adopted for this project is as follows.</p>
+<p>8 constellations were selected randomly to be included in the dataset as this was the minimum amount required for the project and including more constellations would not affect the accuracy of either the template matching system or a deep learning approach were it to be implemented.</p>
+<p>The 8 constellations selected were:</p>
+<ul>
+<li>Columba</li>
+<li>Gemini</li>
+<li>Lyra</li>
+<li>Norma</li>
+<li>Phoenix</li>
+<li>Piscis Austrinus</li>
+<li>Sculptor</li>
+<li>Ursa Minor</li>
+</ul>
+<p>Only 1 original image per constellation was taken for this project, this may seem like a small amount, however, for the purposes of this project this seemed justified. The justifications for this decision are as follows:</p>
+<ul>
+<li>For this project we are only required to implement a template matching system.</li>
+<li>Only one constellation would feature in each image.</li>
+<li>Since a template matching system works by attempting to find a template image within another image, each original screenshot would need to be included as a template image in the template matching implementation.</li>
+</ul>
+<p>To summarize, increasing the amount of original/template images would have boosted the overall size of the dataset, benefitting a deep learning approach to this classification problem. On the other hand it would not have affected the experiments designed to test the template matching systems implementation, rather it could have made interpreting the results more difficult.</p>
+<p>The data was gathered from the following <a href="%5Blink%5D(https://in-the-sky.org/skymap.php)">link</a>.</p>
+<p>An example image is shown below:</p>
+<p><img src="data/original/columba_01.png" alt="example screenshot"></p>
+<h3 id="dataset-augmentation">Dataset Augmentation</h3>
+<p>For each individual image, each individual augmentation was applied at 3 levels (mild augmentation, medium augmentation and aggressive augmentation). This approach was chosen due to the nature of the experiments designed to test the template matching system, more on this later.</p>
+<p>The augmentation techniques were implemented using the packages <em>OpenCV</em> and <em>scikit image</em>.</p>
+<p>The augmentations selected are as follows:</p>
+<ul>
+<li>Contrast</li>
+<li>Brightness</li>
+<li>Gaussian Noise</li>
+<li>Blur</li>
+<li>Rotation</li>
+<li>Shift</li>
+<li>Color Jet</li>
+</ul>
+<p>The specifics for each of the augmentations is as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Augmentation Type</th>
+<th>Level 1 (Mild)</th>
+<th>Level 2 (Medium)</th>
+<th>Level 3 (Aggressive)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Contrast</strong></td>
+<td>1.05x increase</td>
+<td>1.5x increase</td>
+<td>2.0x increase</td>
+</tr>
+<tr>
+<td><strong>Brightness</strong></td>
+<td>+10 intensity</td>
+<td>+50 intensity</td>
+<td>+70 intensity</td>
+</tr>
+<tr>
+<td><strong>Gaussian Noise</strong></td>
+<td>0.001 variance</td>
+<td>0.01 variance</td>
+<td>0.03 variance</td>
+</tr>
+<tr>
+<td><strong>Blur</strong></td>
+<td>7x7 kernel, σ=0.5</td>
+<td>11x11 kernel, σ=0</td>
+<td>21x21 kernel, σ=0</td>
+</tr>
+<tr>
+<td><strong>Rotation</strong></td>
+<td>2°</td>
+<td>5°</td>
+<td>30°</td>
+</tr>
+<tr>
+<td><strong>Shift</strong></td>
+<td>2% of image size</td>
+<td>5% of image size</td>
+<td>10% of image size</td>
+</tr>
+<tr>
+<td><strong>Color Jet</strong></td>
+<td>10% blend</td>
+<td>60% blend</td>
+<td>90% blend</td>
+</tr>
+</tbody>
+</table>
+<p>As well as applying each individual augmentation at each level for every image. All images were augmented 10 further times. For each of these new images, 3 random augmentation techniques at a random level each were applied.</p>
+<p>Thus in total, each constellation ends up with 31 augmented versions of itself, for a total dataset size of 8 original images and 248 augmented ones.</p>
+<h2 id="template-matching-system">Template Matching System</h2>
+<h3 id="implementation">Implementation</h3>
+<p>The template matching system was implemented using <em>OpenCV's</em> template matching functionality, specifically utilizing normalized cross-correlation as the matching metric. The core system consists of two main components:</p>
+<h4 id="image-similarity-computation">Image Similarity Computation</h4>
+<p>The system computes similarity between images using normalized cross-correlation (cv2.TM_CCOEFF_NORMED), which provides several advantages:</p>
+<ul>
+<li>Robust to brightness variations across images</li>
+<li>Returns normalized similarity scores between -1 and 1</li>
+<li>Accounts for both structural and intensity similarities</li>
+</ul>
+<p>The core similarity computation is implemented as follows:</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">compute_similarity</span><span class="hljs-params">(image: np.ndarray, template: np.ndarray)</span> -&gt; float:</span>
+    <span class="hljs-string">"""
+    Compute normalized cross-correlation between image and template
+    """</span>
+    <span class="hljs-comment"># Ensure both images are the same size</span>
+    <span class="hljs-keyword">if</span> image.shape != template.shape:
+        template = cv2.resize(template, (image.shape[<span class="hljs-number">1</span>], image.shape[<span class="hljs-number">0</span>]))
+    <span class="hljs-comment"># Compute normalized cross-correlation</span>
+    result = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+    <span class="hljs-keyword">return</span> np.max(result)
+</div></code></pre>
+<h4 id="template-matching-process">Template Matching Process</h4>
+<p>The matching process follows these steps:</p>
+<ol>
+<li><strong>Template Loading</strong>: Original constellation images are loaded as grayscale templates</li>
+<li><strong>Image Processing</strong>: Test images are converted to grayscale for comparison</li>
+<li><strong>Size Normalization</strong>: Templates are resized to match the dimensions of the test image</li>
+<li><strong>Similarity Computation</strong>: The system calculates the normalized cross-correlation between the test image and each template</li>
+<li><strong>Best Match Selection</strong>: The template with the highest similarity score is selected as the match</li>
+</ol>
+<p>Images are converted to grayscale because constellation patterns primarily rely on structural information rather than color. This approach offers several benefits:</p>
+<ul>
+<li>Reduces computational complexity by processing single-channel instead of three-channel images</li>
+<li>Minimizes the impact of color variations between different sources</li>
+<li>Focuses the matching on the structural patterns of star configurations, which is more relevant for constellation identification</li>
+</ul>
+<p>This approach allows for reliable constellation identification even when images have undergone various transformations, though its effectiveness varies depending on the severity of the augmentations applied.</p>
+<p>The similarity scores have the following interpretation:</p>
+<ul>
+<li>A score of +1 indicates a perfect match</li>
+<li>A score of 0 indicates no correlation</li>
+<li>A score of -1 indicates a perfect negative correlation (inverted intensity pattern)</li>
+</ul>
+<h3 id="experiment-design">Experiment Design</h3>
+<p>The following 2 experiments were conducted:</p>
+<h3 id="individual-augmentation-effect">Individual Augmentation Effect</h3>
+<p>Since template matching simply tries to match the template/original image to one of the augmented images, it is intriguing to investigate the effect that each individual augmentation has on the template matching system.</p>
+<p>Investigating this effect was done as follows:</p>
+<ol>
+<li>Each augmented image was tested against the 8 templates and the similarity score was obtained</li>
+<li>If a score of 0.7 or greater was obtained then the augmented image is classified as the template it was matched to.</li>
+<li>The match is stored as a true positive false positive accordingly, or the respective negative if no match is obtained.</li>
+<li>These values are collected and separated for each individual augmentation technique, at each level.</li>
+<li>The precision, recall and f1-scores of each technique were calculated and plotted.</li>
+<li>The above steps were repeated, changing the threshold from 0.7 each time</li>
+</ol>
+<p><em>Only images with individual augmentations were used in this experiment.</em></p>
+<p>It was hypothesized that the threshold value selected would have a significant result on which augmentations would cause a classification to occur.</p>
+<h4 id="results">Results</h4>
+<p>The result plots of this experiment are displayed at the end of this section.</p>
+<p>The results of the 1st experiment showed that no matter what the threshold value was set to, with individual augmentations, the template matching system either classified correctly, or missed a classification (no false positives). This can be observed as the precision for each augmentation at any threshold is either 1 or 0.</p>
+<p>The augmentations that were affected by threshold levels was rather interesting. the following phenomena were observed:</p>
+<ul>
+<li>No classifications were made if any level of rotation is present. regardless of similarity scores.</li>
+<li>Shift also affected the similarity scores drastically. This can be observed by noting that levels 2 and 3 of the augmentation always have a recall of 0, and that the lowest level has a very low recall at the lowest threshold tested (<em>0.3</em>).</li>
+<li>Noise was the next augmentation to break down in recall as the threshold increased. By a threshold of <em>0.7</em> only the 1st augmentation is seeing any classifications at all.</li>
+<li>The lowest noise level and highest blur and color jet levels all begin to break down in between <em>0.8</em> and <em>0.85</em></li>
+<li>By 0.95 the only augmentations with an f1-score of <em>1</em> left are:
+<ul>
+<li>Contrast (all levels)</li>
+<li>Brightness (all levels)</li>
+<li>Blur (level 1)</li>
+<li>Color jet (level 1)</li>
+</ul>
+</li>
+</ul>
+<p>These observations indicate the following:</p>
+<ul>
+<li>Rotation and shift completely break down the template matching system as expected.</li>
+<li>Contrast and Brightness have no effect on the template matching system. This could be due to 1 of 2 reasons:
+<ol>
+<li>The augmentation levels were not aggressive enough</li>
+<li>Converting the templates and augmented images to greyscale in the implementation negates these augmentations.</li>
+</ol>
+</li>
+<li>The remaining augmentations would affect the similarity scores of the images in proportion to their intensity levels.</li>
+<li>No individual augmentation at any level caused an incorrect classification.</li>
+<li>The threshold level itself was the single largest indicator of whether a match would be made or not.</li>
+</ul>
+<div style="display: flex; justify-content: space-between; margin: 20px 0;">
+    <img src="metrics_threshold_0.3.png" alt="Results at 0.3 threshold" style="width: 48%;">
+   <img src="metrics_threshold_0.4.png" alt="Results at 0.3 threshold" style="width: 48%;">
+</div>
+<div style="display: flex; justify-content: space-between; margin: 20px 0;">
+    <img src="metrics_threshold_0.5.png" alt="Results at 0.3 threshold" style="width: 48%;">
+   <img src="metrics_threshold_0.6.png" alt="Results at 0.3 threshold" style="width: 48%;">
+</div>
+<div style="display: flex; justify-content: space-between; margin: 20px 0;">
+    <img src="metrics_threshold_0.8.png" alt="Results at 0.3 threshold" style="width: 48%;">
+   <img src="metrics_threshold_0.85.png" alt="Results at 0.3 threshold" style="width: 48%;">
+</div>
+<div style="display: flex; justify-content: space-between; margin: 20px 0;">
+    <img src="metrics_threshold_0.9.png" alt="Results at 0.3 threshold" style="width: 48%;">
+   <img src="metrics_threshold_0.95.png" alt="Results at 0.3 threshold" style="width: 48%;">
+</div>
+<h3 id="image-classifying-accuracy">Image Classifying Accuracy</h3>
+<p>It is important to preface the following section by reinforcing the fact that the images the model was tested over were all augmentations of the originals/templates, adding new images to this experiment would be a wast of time due to the underlying nature of how a template matching system works.</p>
+<p>The experiment aims to investigate the overall performance of the template matching system as an image classifier for the constellations in the dataset created.</p>
+<p>It was carried out as follows:</p>
+<ol>
+<li>An augmented image is compared against each template.</li>
+<li>The similarity score for each template is calculated and stored.</li>
+<li>The image is classified as the template with the highest similarity score, irrespective of how low this number is.</li>
+<li>A confusion matrix for the predictions was generated.</li>
+<li>The average similarity score for each constellation with multiple augmentations with its corresponding template was calculated.</li>
+</ol>
+<p><em>Steps 1 through 5 were performed on all images in the dataset, while step 5 was only performed on images with multiple augmentations.</em></p>
+<p>The observation in the first experiment that the threshold was the largest cause for a match or not was the reason to enact this experiment and ditch the threshold entirely. Here we always assume that a constellation is in an image, and match it to the best fit.</p>
+<h4 id="results">Results</h4>
+<p>Below is the confusion matrix:</p>
+<p><img src="confusion_matrix.png" alt="confusion_matrix"></p>
+<p>Since in this experiment an image is always classified as something, the false positive and false negative count end up being identical (54). Thus the precision, recall and f1 score are all identical (0.789).</p>
+<p>On observing the confusion matrix we note that the most confusing constellations, highest FP/FN count, are gemini and ursa minor. Gemini was confused with almost all the other constellations while ursa minor was mostly confused with sculptor.</p>
+<p>the possible explenations for these observations are as follows:</p>
+<ul>
+<li>gemini is a large and complex consteallation consisting of various shapes, similarites with subsections of this constellation could have caused the template matching system to classyify it as another consteallation.</li>
+</ul>
+<p><img src="data/original/gemini_01.png" alt="Gemini"></p>
+<ul>
+<li>Ursa Minor and sculptor have a slightly similar diagonal across the middle region of the screen shots. this could have caused the confusion in the system.</li>
+</ul>
+<p><strong>Ursa Minor:</strong></p>
+<p><img src="data/original/ursa_minor_01.png" alt="Ursa_Minor"></p>
+<p><strong>Sculptor:</strong></p>
+<p><img src="data/original/sculptor_01.png" alt="Sculptor"></p>
+<p>Another interesting observation is found when analysing the average similarity for images with multiple augmentations grouped by the constealltion featured.</p>
+<p><img src="template_similarities.png" alt="Similarities"></p>
+<p>The average similarity score for these images was almost always lower than the lowest threshold used in the first experiment.</p>
+<p>It is also interesting to note that the average similarity for the augmented images of norma was significantly lower than the other constellations.</p>
+<p>Below is a table containing the count for each randomly selected augmenting techniques for norma</p>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Level 1</th>
+<th>Level 2</th>
+<th>Level 3</th>
+<th><strong>Total</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contrast</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td>Brightness</td>
+<td></td>
+<td>1</td>
+<td>1</td>
+<td><strong>2</strong></td>
+</tr>
+<tr>
+<td>Gaussian Noise</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td><strong>3</strong></td>
+</tr>
+<tr>
+<td>Blur</td>
+<td></td>
+<td></td>
+<td>2</td>
+<td><strong>2</strong></td>
+</tr>
+<tr>
+<td>Rotation</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td><strong>7</strong></td>
+</tr>
+<tr>
+<td>Shift</td>
+<td></td>
+<td>2</td>
+<td>4</td>
+<td><strong>6</strong></td>
+</tr>
+<tr>
+<td>Color Jet</td>
+<td>3</td>
+<td></td>
+<td>1</td>
+<td><strong>4</strong></td>
+</tr>
+</tbody>
+</table>
+<p>It was noted that almost all images contained 1 of either shift or rotation, the 2 most consequential augmentations to the template matching system.</p>
+<p>The above observation provides a potential explanation to the significantly lower average similarity.</p>
+
+</body>
+</html>

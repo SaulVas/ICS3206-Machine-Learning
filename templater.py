@@ -390,6 +390,63 @@ def plot_template_similarities(all_results: Dict) -> None:
         plt.close()
 
 
+def plot_metrics_by_threshold(threshold_results: Dict) -> None:
+    """
+    For each threshold, create a plot with 3 subplots (precision, recall, F1)
+    showing scores for each augmentation technique and level
+    """
+    techniques = list(
+        threshold_results[list(threshold_results.keys())[0]][
+            "individual_augmentations"
+        ].keys()
+    )
+    levels = [1, 2, 3]
+    metrics = ["precision", "recall", "f1_score"]
+
+    # Create a separate plot for each threshold
+    for threshold in threshold_results.keys():
+        # Create figure with 3 subplots (one for each metric)
+        fig, axes = plt.subplots(3, 1, figsize=(15, 15))
+        fig.suptitle(f"Metrics at Threshold {threshold}", fontsize=16)
+
+        # Plot each metric in its own subplot
+        for metric_idx, metric in enumerate(metrics):
+            ax = axes[metric_idx]
+
+            # Set up bar positions
+            x = np.arange(len(techniques))
+            width = 0.25  # Width of bars
+
+            # Plot each level
+            for level_idx, level in enumerate(levels):
+                scores = []
+                for technique in techniques:
+                    results = threshold_results[threshold]["individual_augmentations"][
+                        technique
+                    ].get(level, {})
+                    metric_value = (
+                        results.get("metrics", {}).get(metric, 0)
+                        if isinstance(results, dict) and "metrics" in results
+                        else 0
+                    )
+                    scores.append(metric_value)
+
+                offset = width * (level - 2)  # Center the groups
+                ax.bar(x + offset, scores, width, label=f"Level {level}")
+
+            ax.set_xlabel("Augmentation Technique")
+            ax.set_ylabel(f'{metric.replace("_", " ").title()} Score')
+            ax.set_title(f'{metric.replace("_", " ").title()}')
+            ax.set_xticks(x)
+            ax.set_xticklabels(techniques, rotation=45)
+            ax.legend()
+            ax.grid(True, axis="y")
+
+        plt.tight_layout()
+        plt.savefig(f"metrics_threshold_{threshold}.png", bbox_inches="tight")
+        plt.close()
+
+
 # Example usage:
 if __name__ == "__main__":
     data_dir = Path("data")
@@ -404,25 +461,39 @@ if __name__ == "__main__":
         "jet",
     ]
     levels = [1, 2, 3]
+    thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95]
 
-    # Initialize results dictionary
-    all_results = {"individual_augmentations": {}, "combined_augmentations": {}}
+    # Initialize results dictionary for each threshold
+    threshold_results = {}
+    all_results = {"combined_augmentations": {}}
 
-    # Test each individual augmentation technique at each level
-    for technique in techniques:
-        all_results["individual_augmentations"][technique] = {}
+    # Test each threshold
+    for threshold in thresholds:
+        threshold_results[threshold] = {
+            "individual_augmentations": {},
+            "combined_augmentations": {},
+        }
 
-        for level in levels:
-            pattern = f"./data/augmented/individual/*_{technique}_{level}.jpg"
-            try:
-                results = evaluate_templates(
-                    [pattern], template_paths, is_combined=False
-                )
-                all_results["individual_augmentations"][technique][level] = results
-            except ValueError as e:
-                all_results["individual_augmentations"][technique][level] = {
-                    "error": str(e)
-                }
+        # Test each individual augmentation technique at each level
+        for technique in techniques:
+            threshold_results[threshold]["individual_augmentations"][technique] = {}
+
+            for level in levels:
+                pattern = f"./data/augmented/individual/*_{technique}_{level}.jpg"
+                try:
+                    results = evaluate_templates(
+                        [pattern],
+                        template_paths,
+                        is_combined=False,
+                        threshold=threshold,
+                    )
+                    threshold_results[threshold]["individual_augmentations"][technique][
+                        level
+                    ] = results
+                except ValueError as e:
+                    threshold_results[threshold]["individual_augmentations"][technique][
+                        level
+                    ] = {"error": str(e)}
 
     # Test combined augmentations
     try:
@@ -432,16 +503,13 @@ if __name__ == "__main__":
     except ValueError as e:
         all_results["combined_augmentations"] = {"error": str(e)}
 
-    # Generate plots
-    metrics = ["f1_score", "precision", "recall"]
-    for metric in metrics:
-        plot_metric_scores(all_results, metric)
-        print(
-            f"{metric.replace('_', ' ').title()} plot has been saved as '{metric}_scores.png'"
-        )
-
-    plot_template_similarities(all_results)
-    print("Template similarities plot has been saved as 'template_similarities.png'")
+    plot_metrics_by_threshold(threshold_results)
+    print(
+        "Threshold metrics plots have been saved as 'metrics_threshold_X.png' for each threshold"
+    )
 
     print("\nRunning comprehensive evaluation with confusion matrix...")
     results = evaluate_with_confusion_matrix(template_paths)
+
+    plot_template_similarities(all_results)
+    print("Template similarities plot has been saved as 'template_similarities.png'")

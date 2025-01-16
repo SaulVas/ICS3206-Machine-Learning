@@ -1,391 +1,234 @@
+from pathlib import Path
 import cv2
 import numpy as np
-from pathlib import Path
-from typing import List, Dict, Tuple
-import json
-import glob
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
+from typing import Dict
+from skimage.util import random_noise
+from skimage import color
 
 # pylint: disable=all
 
 
-def compute_similarity(image: np.ndarray, template: np.ndarray) -> float:
+def create_combined_augmentation(
+    image: np.ndarray, augmentation_funcs: Dict
+) -> tuple[np.ndarray, str]:
     """
-    Compute normalized cross-correlation between image and template
+    Creates a combined augmentation using 3 random techniques with random levels.
+    Returns the augmented image and a descriptive name of the augmentations applied.
     """
-    # Ensure both images are the same size
-    if image.shape != template.shape:
-        template = cv2.resize(template, (image.shape[1], image.shape[0]))
-
-    # Compute normalized cross-correlation
-    result = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
-    return np.max(result)
-
-
-def evaluate_templates(
-    image_paths: List[str],
-    template_paths: List[str],
-    is_combined: bool = False,
-    threshold: float = 0.7,
-) -> Dict:
-    """
-    Evaluate template matching performance and compute metrics.
-    For each image:
-    - TP: Correctly identified the right template
-    - FP: Incorrectly matched to wrong template
-    - FN: Failed to match any template (similarity below threshold)
-    """
-
-    # Load all templates
-    templates = {}
-    for template_pattern in template_paths:
-        for template_path in glob.glob(template_pattern):
-            template_name = Path(template_path).stem
-            template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
-            if template is None:
-                print(f"Warning: Could not load template: {template_path}")
-                continue
-            templates[template_name] = template
-
-    if not templates:
-        raise ValueError("No templates could be loaded. Check template paths.")
-
-    overall_metrics = {
-        "true_positives": 0,
-        "false_positives": 0,
-        "false_negatives": 0,
-    }
-
-    template_similarities = {} if is_combined else None
-    if is_combined:
-        template_similarities = {
-            template_name: [] for template_name in templates.keys()
-        }
-
-    # Process each image
-    total_images = 0
-    for image_pattern in image_paths:
-        for image_path in glob.glob(image_pattern):
-            total_images += 1
-            image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-            if image is None:
-                print(f"Warning: Could not load image: {image_path}")
-                continue
-
-            image_name = Path(image_path).stem
-            true_template = next(
-                (name for name in templates.keys() if name in image_name), None
-            )
-
-            if not true_template:
-                print(f"Warning: Could not determine true template for {image_name}")
-                continue
-
-            # Track best match for this image
-            best_match = {"template": None, "similarity": -1}
-
-            # Find the best matching template
-            for template_name, template in templates.items():
-                similarity = compute_similarity(image, template)
-
-                # Store similarity for combined dataset
-                if is_combined and template_name == true_template:
-                    template_similarities[template_name].append(similarity)
-
-                # Track the best match
-                if similarity > best_match["similarity"]:
-                    best_match = {"template": template_name, "similarity": similarity}
-
-            # Evaluate the best match
-            if best_match["similarity"] >= threshold:
-                if best_match["template"] == true_template:
-                    overall_metrics["true_positives"] += 1
-                else:
-                    overall_metrics["false_positives"] += 1
-            else:
-                overall_metrics["false_negatives"] += 1
-
-    # Calculate metrics
-    tp = overall_metrics["true_positives"]
-    fp = overall_metrics["false_positives"]
-    fn = overall_metrics["false_negatives"]
-
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    f1 = (
-        2 * (precision * recall) / (precision + recall)
-        if (precision + recall) > 0
-        else 0
-    )
-
-    results = {
-        "debug_info": {
-            "total_images": total_images,
-            "total_templates": len(templates),
-        },
-        "metrics": {
-            "precision": precision,
-            "recall": recall,
-            "f1_score": f1,
-            "true_positives": tp,
-            "false_positives": fp,
-            "false_negatives": fn,
-        },
-    }
-
-    # Add template similarities only for combined dataset
-    if is_combined and template_similarities:
-        results["template_similarities"] = {
-            template_name: sum(similarities) / len(similarities) if similarities else 0
-            for template_name, similarities in template_similarities.items()
-        }
-
-    print(f"\nDebug Info for {image_paths}:")
-    print(f"Total images processed: {total_images}")
-    print(f"Total templates: {len(templates)}")
-    print(f"Metrics: {overall_metrics}")
-
-    return results
-
-
-def plot_f1_scores(all_results: Dict) -> None:
-    """
-    Plot F1 scores for each augmentation technique and level
-    """
-    techniques = list(all_results["individual_augmentations"].keys())
-    levels = [1, 2, 3]
-
-    # Calculate average F1 scores for each technique and level
-    f1_scores = {level: [] for level in levels}
-
-    for technique in techniques:
-        for level in levels:
-            # Get results for this technique and level
-            level_results = all_results["individual_augmentations"][technique].get(
-                level, {}
-            )
-
-            # Calculate average F1 score across all templates
-            if isinstance(level_results, dict) and not "error" in level_results:
-                f1_scores_level = [
-                    template_data["metrics"]["f1_score"]
-                    for template_data in level_results.values()
-                ]
-                avg_f1 = (
-                    sum(f1_scores_level) / len(f1_scores_level)
-                    if f1_scores_level
-                    else 0
-                )
-                f1_scores[level].append(avg_f1)
-            else:
-                f1_scores[level].append(0)  # Handle error cases
-
-    # Create the plot
-    plt.figure(figsize=(12, 6))
-
-    # Plot a line for each level
-    for level in levels:
-        plt.plot(techniques, f1_scores[level], marker="o", label=f"Level {level}")
-
-    plt.xlabel("Augmentation Technique")
-    plt.ylabel("Average F1 Score")
-    plt.title("Average F1 Scores by Augmentation Technique and Level")
-    plt.legend()
-    plt.grid(True)
-
-    # Rotate x-axis labels for better readability
-    plt.xticks(rotation=45)
-
-    # Adjust layout to prevent label cutoff
-    plt.tight_layout()
-
-    # Save the plot
-    plt.savefig("f1_scores.png")
-    plt.close()
-
-
-def plot_metric_scores(all_results: Dict, metric_name: str) -> None:
-    """
-    Plot specified metric scores for each augmentation technique and level
-    """
-    techniques = list(all_results["individual_augmentations"].keys())
-    levels = [1, 2, 3]
-
-    # Calculate average scores for each technique and level
-    scores = {level: [] for level in levels}
-
-    for technique in techniques:
-        for level in levels:
-            level_results = all_results["individual_augmentations"][technique].get(
-                level, {}
-            )
-
-            # Check if level_results is a dictionary and contains valid metrics
-            if (
-                isinstance(level_results, dict)
-                and not "error" in level_results
-                and "metrics" in level_results
-            ):  # Add this check
-                metric_scores = [level_results["metrics"][metric_name]]
-                avg_score = (
-                    sum(metric_scores) / len(metric_scores) if metric_scores else 0
-                )
-                scores[level].append(avg_score)
-            else:
-                scores[level].append(0)
-
-    plt.figure(figsize=(12, 6))
-
-    for level in levels:
-        plt.plot(techniques, scores[level], marker="o", label=f"Level {level}")
-
-    plt.xlabel("Augmentation Technique")
-    plt.ylabel(f'Average {metric_name.replace("_", " ").title()}')
-    plt.title(
-        f'Average {metric_name.replace("_", " ").title()} by Augmentation Technique and Level'
-    )
-    plt.legend()
-    plt.grid(True)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-
-    plt.savefig(f"{metric_name}_scores.png")
-    plt.close()
-
-
-def plot_template_similarities(all_results: Dict) -> None:
-    """
-    Plot average similarities for each template across combined augmentations
-    """
-    if "combined_augmentations" not in all_results:
-        print("No combined augmentation results found")
-        return
-
-    combined_results = all_results["combined_augmentations"]
-    if isinstance(combined_results, dict) and not "error" in combined_results:
-        templates = list(combined_results["template_similarities"].keys())
-        similarities = [
-            combined_results["template_similarities"][template]
-            for template in templates
-        ]
-
-        plt.figure(figsize=(12, 6))
-        plt.bar(templates, similarities)
-
-        plt.xlabel("Template Name")
-        plt.ylabel("Average Similarity")
-        plt.title("Average Template Similarities in Combined Augmentations")
-        plt.grid(True, axis="y")
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-
-        plt.savefig("template_similarities.png")
-        plt.close()
-
-
-def evaluate_with_confusion_matrix(template_paths: List[str]) -> Dict:
-    """
-    Evaluate template matching performance and create a confusion matrix
-    """
-    # Load templates
-    templates = {}
-    for template_pattern in template_paths:
-        for template_path in glob.glob(template_pattern):
-            template_name = Path(template_path).stem
-            template = cv2.imread(template_path, cv2.IMREAD_GRAYSCALE)
-            if template is None:
-                print(f"Warning: Could not load template: {template_path}")
-                continue
-            templates[template_name] = template
-
-    if not templates:
-        raise ValueError("No templates could be loaded. Check template paths.")
-
-    # Initialize lists to store true and predicted labels
-    y_true = []
-    y_pred = []
-    template_names = list(templates.keys())
-
-    # Process all images (both individual and combined)
-    dataset_patterns = [
-        "./data/augmented/individual/*.jpg",
-        "./data/augmented/combined/*.jpg",
+    # List of available augmentation types
+    aug_types = [
+        "shift",
+        "contrast",
+        "noise",
+        "blur",
+        "rotation",
+        "brightness",
+        "jet",
     ]
 
-    for pattern in dataset_patterns:
-        for image_path in glob.glob(pattern):
-            image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-            if image is None:
-                print(f"Warning: Could not load image: {image_path}")
-                continue
+    # Randomly select 3 unique augmentation types
+    selected_types = np.random.choice(aug_types, size=3, replace=False)
 
-            image_name = Path(image_path).stem
-            true_template = next(
-                (name for name in templates.keys() if name in image_name), None
-            )
+    # Start with the original image
+    result = image.copy()
 
-            if not true_template:
-                print(f"Warning: Could not determine true template for {image_name}")
-                continue
+    # Build the name and apply augmentations
+    name_parts = []
+    for aug_type in selected_types:
+        # Random intensity level (1, 2, or 3)
+        level = np.random.randint(1, 4)
+        key = f"{aug_type}_{level}"
+        result = augmentation_funcs[key](result)
+        name_parts.append(f"{aug_type}_{level}")
 
-            # Find best matching template
-            best_match = {"template": None, "similarity": -1}
-            for template_name, template in templates.items():
-                similarity = compute_similarity(image, template)
-                if similarity > best_match["similarity"]:
-                    best_match = {"template": template_name, "similarity": similarity}
+    # Create the full name
+    full_name = "combined_" + "_".join(name_parts)
 
-            y_true.append(true_template)
-            y_pred.append(best_match["template"])
+    return result, full_name
 
-    # Create confusion matrix
-    cm = confusion_matrix(y_true, y_pred, labels=template_names)
 
-    # Calculate metrics
-    precision = precision_score(y_true, y_pred, average="weighted")
-    recall = recall_score(y_true, y_pred, average="weighted")
-    f1 = f1_score(y_true, y_pred, average="weighted")
+def apply_augmentations(image: np.ndarray) -> Dict[str, np.ndarray]:
+    """
+    Applies various augmentation techniques at three intensity levels.
+    Level 1: Very subtle changes
+    Level 2: Moderate changes
+    Level 3: Aggressive changes
 
-    # Create confusion matrix plot
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt="d",
-        cmap="Blues",
-        xticklabels=template_names,
-        yticklabels=template_names,
-    )
-    plt.title("Template Matching Confusion Matrix")
-    plt.xlabel("Predicted Template")
-    plt.ylabel("True Template")
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig("confusion_matrix.png")
-    plt.close()
+    Args:
+        image (np.ndarray): Input image in BGR format
 
-    # Print metrics
-    print("\nOverall Metrics:")
-    print(f"Precision: {precision:.3f}")
-    print(f"Recall: {recall:.3f}")
-    print(f"F1 Score: {f1:.3f}")
-    print(f"\nTotal images processed: {len(y_true)}")
+    Returns:
+        Dict[str, np.ndarray]: Dictionary containing original and augmented images
+    """
+    augmented_images = {"original": image.copy()}
 
-    return {
-        "confusion_matrix": cm,
-        "metrics": {"precision": precision, "recall": recall, "f1_score": f1},
-        "total_images": len(y_true),
+    # Contrast adjustment
+    # Level 1: Barely noticeable, Level 2: Moderate, Level 3: Strong
+    contrast_factors = [1.05, 1.5, 2.0]
+    for i, factor in enumerate(contrast_factors, 1):
+        augmented_images[f"contrast_{i}"] = cv2.convertScaleAbs(
+            image, alpha=factor, beta=0
+        )
+
+    # Brightness adjustment
+    # Level 1: Slight brightening, Level 2: Noticeable, Level 3: Significant
+    brightness_factors = [10, 50, 70]
+    for i, factor in enumerate(brightness_factors, 1):
+        augmented_images[f"brightness_{i}"] = cv2.convertScaleAbs(
+            image, alpha=1, beta=factor
+        )
+
+    # Add Gaussian noise
+    # Level 1: Very fine grain, Level 2: Moderate noise, Level 3: Heavy noise
+    def add_noise(img, var):
+        # random_noise expects float image and returns float image
+        float_img = img.astype("float32") / 255.0
+        noisy_float = random_noise(float_img, mode="gaussian", var=var)
+        # Convert back to uint8
+        return (noisy_float * 255).astype(np.uint8)
+
+    noise_levels = [0.001, 0.01, 0.03]  # Variance levels for gaussian noise
+    for i, level in enumerate(noise_levels, 1):
+        augmented_images[f"noise_{i}"] = add_noise(image, level)
+
+    # Blur
+    # Level 1: Slight softening, Level 2: Noticeable blur, Level 3: Strong blur
+    blur_kernels = [
+        (7, 7),
+        (11, 11),
+        (21, 21),
+    ]
+    for i, kernel in enumerate(blur_kernels, 1):
+        sigma = 0.5 if i == 1 else 0  # Smaller sigma for level 1
+        augmented_images[f"blur_{i}"] = cv2.GaussianBlur(image, kernel, sigma)
+
+    # Rotation
+    # Level 1: Very subtle tilt, Level 2: Slight tilt, Level 3: Moderate rotation
+    def rotate_image(img, angle):
+        height, width = img.shape[:2]
+        center = (width // 2, height // 2)
+        rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+        return cv2.warpAffine(img, rotation_matrix, (width, height))
+
+    rotation_angles = [2, 5, 10]
+    for i, angle in enumerate(rotation_angles, 1):
+        augmented_images[f"rotation_{i}"] = rotate_image(image, angle)
+
+    # Scale/Shift manipulation
+    # Level 1: Slight shift, Level 2: Moderate shift, Level 3: Larger shift
+    def shift_image(img, shift_x, shift_y):
+        height, width = img.shape[:2]
+        matrix = np.float32([[1, 0, shift_x], [0, 1, shift_y]])
+        return cv2.warpAffine(
+            img, matrix, (width, height), borderMode=cv2.BORDER_CONSTANT, borderValue=0
+        )  # Black border
+
+    # Shift by percentage of image size
+    shift_factors = [0.02, 0.05, 0.1]  # 2%, 5%, 10% of image size
+    for i, factor in enumerate(shift_factors, 1):
+        height, width = image.shape[:2]
+        shift_x = int(width * factor)
+        shift_y = int(height * factor)
+        # Random direction for each shift
+        shift_x *= np.random.choice([-1, 1])
+        shift_y *= np.random.choice([-1, 1])
+        augmented_images[f"shift_{i}"] = shift_image(image, shift_x, shift_y)
+
+    # Color jet effect with different intensity levels
+    # Level 1: Subtle blend, Level 2: Medium blend, Level 3: Strong blend
+    def apply_jet(img, alpha):
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        colored = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
+        return cv2.addWeighted(img, 1 - alpha, colored, alpha, 0)
+
+    jet_intensities = [0.1, 0.6, 0.9]
+    for i, intensity in enumerate(jet_intensities, 1):
+        augmented_images[f"jet_{i}"] = apply_jet(image, intensity)
+
+    augmentation_funcs = {
+        "contrast_1": lambda img: cv2.convertScaleAbs(img, alpha=1.05, beta=0),
+        "contrast_2": lambda img: cv2.convertScaleAbs(img, alpha=1.5, beta=0),
+        "contrast_3": lambda img: cv2.convertScaleAbs(img, alpha=2.0, beta=0),
+        "brightness_1": lambda img: cv2.convertScaleAbs(img, alpha=1, beta=10),
+        "brightness_2": lambda img: cv2.convertScaleAbs(img, alpha=1, beta=50),
+        "brightness_3": lambda img: cv2.convertScaleAbs(img, alpha=1, beta=70),
+        "noise_1": lambda img: add_noise(img, 0.001),
+        "noise_2": lambda img: add_noise(img, 0.01),
+        "noise_3": lambda img: add_noise(img, 0.03),
+        "blur_1": lambda img: cv2.GaussianBlur(img, (7, 7), 0.5),
+        "blur_2": lambda img: cv2.GaussianBlur(img, (11, 11), 0),
+        "blur_3": lambda img: cv2.GaussianBlur(img, (21, 21), 0),
+        "rotation_1": lambda img: rotate_image(img, 2),
+        "rotation_2": lambda img: rotate_image(img, 5),
+        "rotation_3": lambda img: rotate_image(img, 30),
+        "shift_1": lambda img: shift_image(
+            img,
+            int(img.shape[1] * 0.02) * np.random.choice([-1, 1]),
+            int(img.shape[0] * 0.02) * np.random.choice([-1, 1]),
+        ),
+        "shift_2": lambda img: shift_image(
+            img,
+            int(img.shape[1] * 0.05) * np.random.choice([-1, 1]),
+            int(img.shape[0] * 0.05) * np.random.choice([-1, 1]),
+        ),
+        "shift_3": lambda img: shift_image(
+            img,
+            int(img.shape[1] * 0.1) * np.random.choice([-1, 1]),
+            int(img.shape[0] * 0.1) * np.random.choice([-1, 1]),
+        ),
+        "jet_1": lambda img: apply_jet(img, 0.1),
+        "jet_2": lambda img: apply_jet(img, 0.6),
+        "jet_3": lambda img: apply_jet(img, 0.9),
     }
 
+    # Create 5 random combined augmentations
+    for i in range(5):
+        combined_img, name = create_combined_augmentation(image, augmentation_funcs)
+        augmented_images[name] = combined_img
+        # Optionally log the combination created
+        print(f"Created combination {i+1}: {name}")
 
-# Example usage:
+    return augmented_images
+
+
 if __name__ == "__main__":
-    data_dir = Path("data")
-    template_paths = ["./data/original/*.png"]
+    # Create separate directories for individual and combined augmentations
+    base_output_dir = Path("data/augmented")
+    individual_dir = base_output_dir / "individual"
+    combined_dir = base_output_dir / "combined"
 
-    print("\nRunning comprehensive evaluation with confusion matrix...")
-    results = evaluate_with_confusion_matrix(template_paths)
+    # Create directories
+    individual_dir.mkdir(parents=True, exist_ok=True)
+    combined_dir.mkdir(parents=True, exist_ok=True)
+
+    # Get input directory
+    input_dir = Path("data/original")
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory '{input_dir}' does not exist")
+
+    # Process each image
+    for image_path in input_dir.glob("*.png"):
+        try:
+            # Read image
+            image = cv2.imread(str(image_path))
+            if image is None:
+                print(f"Warning: Could not read image {image_path}")
+                continue
+
+            # Apply augmentations
+            augmented_images = apply_augmentations(image)
+
+            # Save augmented images
+            for key, aug_image in augmented_images.items():
+                # Determine output directory based on augmentation type
+                if key.startswith("combined_"):
+                    output_path = combined_dir / f"{image_path.stem}_{key}.jpg"
+                else:
+                    output_path = individual_dir / f"{image_path.stem}_{key}.jpg"
+
+                cv2.imwrite(str(output_path), aug_image)
+
+            print(f"Successfully processed: {image_path.name}")
+
+        except Exception as e:
+            print(f"Error processing {image_path}: {str(e)}")

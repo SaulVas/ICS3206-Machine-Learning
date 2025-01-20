@@ -82,6 +82,16 @@ In addition to applying each individual augmentation at each level for every ima
 
 Thus, in total, each constellation ends up with 31 augmented versions of itself, for a total dataset size of 8 original images and 248 augmented ones.
 
+### Dataset Summary
+
+| Category                 | Count                      |
+| ------------------------ | -------------------------- |
+| Constellations           | 8                          |
+| Original Images          | 8 (1 per constellation)    |
+| Individual Augmentations | 168 (21 per constellation) |
+| Multiple Augmentations   | 80 (10 per constellation)  |
+| Total Dataset Size       | 256 images                 |
+
 ## Template Matching System
 
 ### Implementation
@@ -272,6 +282,34 @@ It was noted that almost all images contained one of either shift or rotation, t
 
 The above observation provides a potential explanation for the significantly lower average similarity.
 
+## Summary of Findings
+
+### Template Matching System Performance
+
+- **Strengths**:
+
+  - High precision with single augmentations (no false positives)
+  - Robust against intensity-based changes (contrast, brightness)
+  - Effective with mild image modifications
+
+- **Limitations**:
+  - Highly sensitive to geometric transformations
+  - Performance degrades significantly with multiple augmentations
+  - Requires precise alignment for accurate matching
+
+### Key Insights
+
+1. Threshold selection is crucial for system performance
+2. Geometric transformations (rotation, shift) are the most challenging augmentations
+3. Multiple augmentations significantly reduce matching confidence
+4. System performs best with intensity-based modifications
+
+### Recommendations for Improvement
+
+1. Implement rotation-invariant template matching
+2. Consider hybrid approaches combining template matching with feature detection
+3. Explore deep learning solutions for more robust performance
+
 ## Deep Learning Investigation
 
 ### Literature Review: Deep Learning for Classifying Constellations
@@ -396,7 +434,7 @@ The performance of the model will be evaluated using the following metrics:
 
 By leveraging pre-trained architectures, fine-tuning strategies, and a robust object detection framework, this approach balances accuracy, efficiency, and scalability. The combination of CNN-based feature extraction, bounding box regression, and extensive evaluation ensures the proposed model is well-suited for the task of constellation classification.
 
-## References
+## References
 
 [1] Y. LeCun, Y. Bengio, and G. Hinton, “Deep learning,” Nature, vol. 521, no. 7553, pp. 436–444, May 2015.
 
@@ -429,3 +467,267 @@ By leveraging pre-trained architectures, fine-tuning strategies, and a robust ob
 [15] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,” in _Proc. IEEE CVPR_, 2016, pp. 770–778.
 
 [16] M. Tan and Q. Le, “EfficientNet: Rethinking model scaling for convolutional neural networks,” in _Proc. ICML_, 2019, pp. 6105–6114.
+
+## Appendix
+
+### AI Models
+
+Two different AI language models were used during the development of this project:
+
+- Claude 3.5 Sonnet (Anthropic)
+- GPT-4 (OpenAI)
+
+These models were selected to provide complementary perspectives and cross-reference ideas, particularly when discussing technical concepts and methodological approaches. Using multiple AI models helped ensure a more comprehensive and balanced analysis.
+
+### Ethical Considerations
+
+#### Methodological Implications
+
+The use of AI models as research tools raises questions about research methodology and reproducibility. While AI models can enhance research efficiency, their outputs may vary across different iterations or model versions. This project addressed these concerns by:
+
+1. Implementing systematic verification procedures for all AI-generated content
+2. Maintaining detailed documentation of AI model usage
+3. Cross-referencing all technical information with peer-reviewed sources
+
+#### Bias and Validity Considerations
+
+AI language models inherently carry biases from their training data and architectures (Bender et al., 2021). To mitigate these potential biases, this research:
+
+- Employed multiple AI models to cross-validate information
+- Verified technical implementations through empirical testing
+- Maintained clear boundaries between AI-assisted content and original research findings
+
+#### Academic Integrity Framework
+
+The integration of AI tools in academic work necessitates careful consideration of academic integrity principles. This research adhered to the following framework:
+
+1. Transparency: Explicit acknowledgment of AI tool usage
+2. Verification: Independent validation of all AI-generated content
+3. Attribution: Proper citation of primary sources and academic literature
+4. Originality: Clear delineation between AI-assisted and original work
+
+#### Data Ethics and Privacy
+
+While this project primarily utilized public astronomical data, the broader implications of AI usage in research contexts raise important privacy considerations. The research methodology ensured:
+
+- Exclusive use of publicly available datasets
+- Compliance with open-source licensing requirements
+- Protection of intellectual property rights
+
+### Methodology
+
+Throughout the project the development tool _cursor_ was used. This facilitated the use of generative AI directly within the the IDE. Generative AI was mostly used as either a search engine replacement, or a debugging tool throughout both the development and research phases.
+
+Here are some example prompts:
+
+Prompt: "there are two types of templating as far as i know,"
+
+Response:
+"In computer vision, there are indeed two main types of template matching:
+
+1. Feature-Based Template Matching
+
+- Uses keypoint detection (like SIFT, SURF, ORB)
+- Extracts and matches distinctive features/points
+- More robust to rotation, scaling, and perspective changes
+- Better for complex scenes and partial matches
+- Example using SIFT:
+
+```python
+def feature_based_matching(image, template):
+    sift = cv2.SIFT_create()
+    kp1, des1 = sift.detectAndCompute(template, None)
+    kp2, des2 = sift.detectAndCompute(image, None)
+
+    # Match features
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(des1, des2, k=2)
+```
+
+2. Pixel-Based Template Matching (What your code uses)
+
+```python
+def match_template(image: np.ndarray, template: np.ndarray, threshold: float = 0.7):
+    # ...
+    methods = [cv2.TM_CCOEFF_NORMED, cv2.TM_CCORR_NORMED]
+    for method in methods:
+        result = cv2.matchTemplate(image, template, method)
+```
+
+- Uses direct pixel intensity comparisons
+- Slides template over image and compares pixel values
+- Less robust to transformations
+- Faster and simpler
+- Better for exact matches in controlled environments
+
+- Your code uses pixel-based matching with cv2.matchTemplate(). Given the nature of constellation matching, you might get better results switching to feature-based matching since it handles rotations and scaling better. Would you like me to show how to implement that approach?
+  "
+
+Another example is when debugging and error in the initial template matching imlementation:
+
+Prompt: "no images are being processed, help me figure out why
+@Codebase"
+
+Response:
+"Let me help you debug why no images are being processed. Looking at the code, there are a few potential issues to check:
+
+1. First, check if your input directory structure is correct. The code expects images to be in:
+
+```python
+    input_dir = Path("data/original")
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory '{input_dir}' does not exist")
+```
+
+Make sure:
+
+- The directory data/original exists
+- It contains .jpg images
+
+2. The code only processes .jpg files:
+
+```python
+    for image_path in input_dir.glob("*.jpg"):
+```
+
+If your images are in a different format (like .png), they won't be processed.
+
+Here's how you can verify and fix these issues:
+
+1. First, verify your directory structure exists:
+
+```python
+from pathlib import Path
+
+input_dir = Path("data/original")
+print(f"Input directory exists: {input_dir.exists()}")
+print(f"Input directory contents: {list(input_dir.glob('*'))}")
+```
+
+2. If needed, modify the image extension check to include other formats:
+
+```python
+# Replace line 105 with:
+for image_path in input_dir.glob("*.[jJ][pP][gG]", "*.[pP][nN][gG]", "*.[jJ][pP][eE][gG]"):
+```
+
+3. Add more verbose logging to help debugging:
+
+```python
+# Add after line 100:
+print(f"Looking for images in: {input_dir.absolute()}")
+image_files = list(input_dir.glob("*.jpg"))
+print(f"Found {len(image_files)} images")
+```
+
+Common issues to check:
+
+1. Make sure you're running the script from the correct directory
+
+2. Verify image file permissions
+3. Confirm image files are not corrupted
+4. Check if the images have the correct extension (case-sensitive)
+
+Let me know what you find after adding these debugging steps, and we can further diagnose the issue."
+
+Finally during the report writing process generative AI was leveraged to find papers to research for the literature review as well as a grammar checker and proof reader.
+
+Prompt: "Proof read my report, outlining any improvements and suggestions youde have, keep in mind this is in academic format and i am using ieee referencing style:"
+
+Response:
+"I'll review your report and provide suggestions for improvement. Here's my analysis:
+
+**Strengths**
+
+- Well-structured with clear sections and subsystems
+
+- Good use of tables and figures to illustrate points
+- Detailed technical explanations
+- Strong methodology descriptions
+- Comprehensive deep learning investigation section
+
+**Areas for Improvement**
+
+1. Abstract Missing
+
+- Consider adding an abstract at the beginning summarizing the key points, methodology, and findings
+- This would help readers quickly understand the scope and contributions
+
+2. Introduction Section Missing
+
+- Add an introduction section outlining:
+  - Problem statement
+  - Project objectives
+  - Brief overview of approach
+  - Report structure
+
+3. Dataset Section
+
+- Consider adding quantitative metrics about the dataset (image dimensions, file formats)
+- Include more details about the image preprocessing steps
+- Add a brief discussion of dataset limitations
+
+4. Reference Style Issues
+
+- IEEE style requires references to be numbered in order of appearance in the text
+- Some references are out of order (e.g., [7] appears before [1-6])
+- In-text citations should use square brackets consistently
+
+5. Results Presentation
+
+- Consider adding error bars or confidence intervals to your metrics
+- Include statistical significance tests where appropriate
+- Some figures lack proper captions and numbering
+
+6. Technical Details
+
+- Add more specifics about the hardware/software used
+- Include computational requirements and processing times
+- Consider adding pseudocode for key algorithms
+
+7. Conclusion Missing
+
+- Add a dedicated conclusion section summarizing:
+  - Key findings
+  - Limitations
+  - Future work recommendations
+
+8. Minor Issues
+
+- Some inconsistent formatting in tables
+- A few figures lack proper references in the text
+- Some paragraphs could be broken up for better readability
+- Consider adding a list of abbreviations/acronyms
+
+9. IEEE Formatting
+
+- Section headings should be numbered (1, 1.1, 1.1.1, etc.)
+- Figure captions should be below figures
+- Table captions should be above tables
+- References need consistent formatting:
+
+```
+[1] A. B. Author, "Title of paper," Journal Name, vol. x, no. y, pp. xxx-yyy, Month Year.
+```
+
+10. Language and Style
+
+- Some sentences could be more concise
+- Use more formal academic language in places
+- Maintain consistent tense throughout (prefer present tense for established facts)
+
+Would you like me to elaborate on any of these points or provide specific examples of suggested revisions?"
+
+### Improvements, Errors and Contributions
+
+In this project AI helped formulate a clear understanding of the limitations and strengths of a template matching system, allowing a clear plan for dataset collection and experiment analysis to be formed before writing any code.
+
+When asking AI to help write code, more often than not it would break the system as it would not have an idea of the larger picture.
+
+It also contributed heavily in the decision making an research section behind the deep learning investigation.
+
+### Individual Reflection
+
+Generative AI overall made me more efficient. It stream lined my learning and research process while also providing me clear explanations of concepts I was unclear of. While overall it made me more efficient, when I tried to cut corners and have it debug my code or write my code for me it just set me back.
+
+My perspective didn't change much throughout this project, I will still continue to use AI in my research, but will not be moving to code generation full time with AI.

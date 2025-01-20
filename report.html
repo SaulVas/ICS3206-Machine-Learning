@@ -403,15 +403,15 @@ code {
 </table>
 <h2 id="dataset-creation">Dataset Creation</h2>
 <h3 id="dataset-collection">Dataset Collection</h3>
-<p>For the collection of original screen shots of constellations the following considerations had to be answered:</p>
+<p>For the collection of original screenshots of constellations, the following considerations were addressed:</p>
 <ol>
-<li>How many constellations were to be included in the dataset</li>
-<li>How many images per constellation were to be collected</li>
-<li>Which source website the constellation images would be taken from</li>
+<li>How many constellations were to be included in the dataset.</li>
+<li>How many images per constellation were to be collected.</li>
+<li>Which source website the constellation images would be taken from.</li>
 </ol>
-<p>The method adopted for this project is as follows.</p>
-<p>8 constellations were selected randomly to be included in the dataset as this was the minimum amount required for the project and including more constellations would not affect the accuracy of either the template matching system or a deep learning approach were it to be implemented.</p>
-<p>The 8 constellations selected were:</p>
+<p>The method adopted for this project is as follows:</p>
+<p>Eight constellations were randomly selected to be included in the dataset, as this was the minimum amount required for the project. Including more constellations would not affect the accuracy of either the template matching system or a deep learning approach, were it to be implemented.</p>
+<p>The eight constellations selected were:</p>
 <ul>
 <li>Columba</li>
 <li>Gemini</li>
@@ -422,19 +422,19 @@ code {
 <li>Sculptor</li>
 <li>Ursa Minor</li>
 </ul>
-<p>Only 1 original image per constellation was taken for this project, this may seem like a small amount, however, for the purposes of this project this seemed justified. The justifications for this decision are as follows:</p>
+<p>Only one original image per constellation was taken for this project. This may seem like a small amount; however, for the purposes of this project, it seemed justified. The justifications for this decision are as follows:</p>
 <ul>
-<li>For this project we are only required to implement a template matching system.</li>
+<li>For this project, we are only required to implement a template matching system.</li>
 <li>Only one constellation would feature in each image.</li>
 <li>Since a template matching system works by attempting to find a template image within another image, each original screenshot would need to be included as a template image in the template matching implementation.</li>
 </ul>
-<p>To summarize, increasing the amount of original/template images would have boosted the overall size of the dataset, benefitting a deep learning approach to this classification problem. On the other hand it would not have affected the experiments designed to test the template matching systems implementation, rather it could have made interpreting the results more difficult.</p>
-<p>The data was gathered from the following <a href="%5Blink%5D(https://in-the-sky.org/skymap.php)">link</a>.</p>
+<p>To summarize, increasing the number of original/template images would have boosted the overall size of the dataset, benefiting a deep learning approach to this classification problem. On the other hand, it would not have affected the experiments designed to test the template matching system's implementation; rather, it could have made interpreting the results more difficult.</p>
+<p>The data was gathered from the following <a href="https://in-the-sky.org/skymap.php">link</a>.</p>
 <p>An example image is shown below:</p>
 <p><img src="data/original/columba_01.png" alt="example screenshot"></p>
 <h3 id="dataset-augmentation">Dataset Augmentation</h3>
-<p>For each individual image, each individual augmentation was applied at 3 levels (mild augmentation, medium augmentation and aggressive augmentation). This approach was chosen due to the nature of the experiments designed to test the template matching system, more on this later.</p>
-<p>The augmentation techniques were implemented using the packages <em>OpenCV</em> and <em>scikit image</em>.</p>
+<p>For each individual image, each augmentation was applied at three levels (mild, medium, and aggressive). This approach was chosen due to the nature of the experiments designed to test the template matching system, more on this later.</p>
+<p>The augmentation techniques were implemented using the packages <em>OpenCV</em> and <em>scikit-image</em>.</p>
 <p>The augmentations selected are as follows:</p>
 <ul>
 <li>Contrast</li>
@@ -445,7 +445,7 @@ code {
 <li>Shift</li>
 <li>Color Jet</li>
 </ul>
-<p>The specifics for each of the augmentations is as follows:</p>
+<p>The specifics for each of the augmentations are as follows:</p>
 <table>
 <thead>
 <tr>
@@ -500,17 +500,48 @@ code {
 </tr>
 </tbody>
 </table>
-<p>As well as applying each individual augmentation at each level for every image. All images were augmented 10 further times. For each of these new images, 3 random augmentation techniques at a random level each were applied.</p>
-<p>Thus in total, each constellation ends up with 31 augmented versions of itself, for a total dataset size of 8 original images and 248 augmented ones.</p>
+<p>In addition to applying each individual augmentation at each level for every image, all images were augmented 10 further times. For each of these new images, three random augmentation techniques at a random level each were applied.</p>
+<p>Thus, in total, each constellation ends up with 31 augmented versions of itself, for a total dataset size of 8 original images and 248 augmented ones.</p>
+<h3 id="dataset-summary">Dataset Summary</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Constellations</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Original Images</td>
+<td>8 (1 per constellation)</td>
+</tr>
+<tr>
+<td>Individual Augmentations</td>
+<td>168 (21 per constellation)</td>
+</tr>
+<tr>
+<td>Multiple Augmentations</td>
+<td>80 (10 per constellation)</td>
+</tr>
+<tr>
+<td>Total Dataset Size</td>
+<td>256 images</td>
+</tr>
+</tbody>
+</table>
 <h2 id="template-matching-system">Template Matching System</h2>
 <h3 id="implementation">Implementation</h3>
 <p>The template matching system was implemented using <em>OpenCV's</em> template matching functionality, specifically utilizing normalized cross-correlation as the matching metric. The core system consists of two main components:</p>
 <h4 id="image-similarity-computation">Image Similarity Computation</h4>
 <p>The system computes similarity between images using normalized cross-correlation (cv2.TM_CCOEFF_NORMED), which provides several advantages:</p>
 <ul>
-<li>Robust to brightness variations across images</li>
-<li>Returns normalized similarity scores between -1 and 1</li>
-<li>Accounts for both structural and intensity similarities</li>
+<li>Robust to brightness variations across images.</li>
+<li>Returns normalized similarity scores between -1 and 1.</li>
+<li>Accounts for both structural and intensity similarities.</li>
 </ul>
 <p>The core similarity computation is implemented as follows:</p>
 <pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">compute_similarity</span><span class="hljs-params">(image: np.ndarray, template: np.ndarray)</span> -&gt; float:</span>
@@ -527,50 +558,50 @@ code {
 <h4 id="template-matching-process">Template Matching Process</h4>
 <p>The matching process follows these steps:</p>
 <ol>
-<li><strong>Template Loading</strong>: Original constellation images are loaded as grayscale templates</li>
-<li><strong>Image Processing</strong>: Test images are converted to grayscale for comparison</li>
-<li><strong>Size Normalization</strong>: Templates are resized to match the dimensions of the test image</li>
-<li><strong>Similarity Computation</strong>: The system calculates the normalized cross-correlation between the test image and each template</li>
-<li><strong>Best Match Selection</strong>: The template with the highest similarity score is selected as the match</li>
+<li><strong>Template Loading</strong>: Original constellation images are loaded as grayscale templates.</li>
+<li><strong>Image Processing</strong>: Test images are converted to grayscale for comparison.</li>
+<li><strong>Size Normalization</strong>: Templates are resized to match the dimensions of the test image.</li>
+<li><strong>Similarity Computation</strong>: The system calculates the normalized cross-correlation between the test image and each template.</li>
+<li><strong>Best Match Selection</strong>: The template with the highest similarity score is selected as the match.</li>
 </ol>
 <p>Images are converted to grayscale because constellation patterns primarily rely on structural information rather than color. This approach offers several benefits:</p>
 <ul>
-<li>Reduces computational complexity by processing single-channel instead of three-channel images</li>
-<li>Minimizes the impact of color variations between different sources</li>
-<li>Focuses the matching on the structural patterns of star configurations, which is more relevant for constellation identification</li>
+<li>Reduces computational complexity by processing single-channel instead of three-channel images.</li>
+<li>Minimizes the impact of color variations between different sources.</li>
+<li>Focuses the matching on the structural patterns of star configurations, which is more relevant for constellation identification.</li>
 </ul>
 <p>This approach allows for reliable constellation identification even when images have undergone various transformations, though its effectiveness varies depending on the severity of the augmentations applied.</p>
 <p>The similarity scores have the following interpretation:</p>
 <ul>
-<li>A score of +1 indicates a perfect match</li>
-<li>A score of 0 indicates no correlation</li>
-<li>A score of -1 indicates a perfect negative correlation (inverted intensity pattern)</li>
+<li>A score of +1 indicates a perfect match.</li>
+<li>A score of 0 indicates no correlation.</li>
+<li>A score of -1 indicates a perfect negative correlation (inverted intensity pattern).</li>
 </ul>
 <h3 id="experiment-design">Experiment Design</h3>
-<p>The following 2 experiments were conducted:</p>
+<p>The following two experiments were conducted:</p>
 <h3 id="individual-augmentation-effect">Individual Augmentation Effect</h3>
 <p>Since template matching simply tries to match the template/original image to one of the augmented images, it is intriguing to investigate the effect that each individual augmentation has on the template matching system.</p>
 <p>Investigating this effect was done as follows:</p>
 <ol>
-<li>Each augmented image was tested against the 8 templates and the similarity score was obtained</li>
-<li>If a score of 0.7 or greater was obtained then the augmented image is classified as the template it was matched to.</li>
-<li>The match is stored as a true positive false positive accordingly, or the respective negative if no match is obtained.</li>
+<li>Each augmented image was tested against the eight templates, and the similarity score was obtained.</li>
+<li>If a score of 0.7 or greater was obtained, then the augmented image is classified as the template it was matched to.</li>
+<li>The match is stored as a true positive or false positive accordingly, or the respective negative if no match is obtained.</li>
 <li>These values are collected and separated for each individual augmentation technique, at each level.</li>
-<li>The precision, recall and f1-scores of each technique were calculated and plotted.</li>
-<li>The above steps were repeated, changing the threshold from 0.7 each time</li>
+<li>The precision, recall, and f1-scores of each technique were calculated and plotted.</li>
+<li>The above steps were repeated, changing the threshold from 0.7 each time.</li>
 </ol>
 <p><em>Only images with individual augmentations were used in this experiment.</em></p>
 <p>It was hypothesized that the threshold value selected would have a significant result on which augmentations would cause a classification to occur.</p>
 <h4 id="results">Results</h4>
 <p>The result plots of this experiment are displayed at the end of this section.</p>
-<p>The results of the 1st experiment showed that no matter what the threshold value was set to, with individual augmentations, the template matching system either classified correctly, or missed a classification (no false positives). This can be observed as the precision for each augmentation at any threshold is either 1 or 0.</p>
-<p>The augmentations that were affected by threshold levels was rather interesting. the following phenomena were observed:</p>
+<p>The results of the first experiment showed that no matter what the threshold value was set to, with individual augmentations, the template matching system either classified correctly or missed a classification (no false positives). This can be observed as the precision for each augmentation at any threshold is either 1 or 0.</p>
+<p>The augmentations that were affected by threshold levels were rather interesting. The following phenomena were observed:</p>
 <ul>
-<li>No classifications were made if any level of rotation is present. regardless of similarity scores.</li>
+<li>No classifications were made if any level of rotation is present, regardless of similarity scores.</li>
 <li>Shift also affected the similarity scores drastically. This can be observed by noting that levels 2 and 3 of the augmentation always have a recall of 0, and that the lowest level has a very low recall at the lowest threshold tested (<em>0.3</em>).</li>
-<li>Noise was the next augmentation to break down in recall as the threshold increased. By a threshold of <em>0.7</em> only the 1st augmentation is seeing any classifications at all.</li>
-<li>The lowest noise level and highest blur and color jet levels all begin to break down in between <em>0.8</em> and <em>0.85</em></li>
-<li>By 0.95 the only augmentations with an f1-score of <em>1</em> left are:
+<li>Noise was the next augmentation to break down in recall as the threshold increased. By a threshold of <em>0.7</em>, only the first augmentation is seeing any classifications at all.</li>
+<li>The lowest noise level and highest blur and color jet levels all begin to break down between <em>0.8</em> and <em>0.85</em>.</li>
+<li>By 0.95, the only augmentations with an f1-score of <em>1</em> left are:
 <ul>
 <li>Contrast (all levels)</li>
 <li>Brightness (all levels)</li>
@@ -582,9 +613,9 @@ code {
 <p>These observations indicate the following:</p>
 <ul>
 <li>Rotation and shift completely break down the template matching system as expected.</li>
-<li>Contrast and Brightness have no effect on the template matching system. This could be due to 1 of 2 reasons:
+<li>Contrast and Brightness have no effect on the template matching system. This could be due to one of two reasons:
 <ol>
-<li>The augmentation levels were not aggressive enough</li>
+<li>The augmentation levels were not aggressive enough.</li>
 <li>Converting the templates and augmented images to greyscale in the implementation negates these augmentations.</li>
 </ol>
 </li>
@@ -609,7 +640,7 @@ code {
    <img src="metrics_threshold_0.95.png" alt="Results at 0.3 threshold" style="width: 48%;">
 </div>
 <h3 id="image-classifying-accuracy">Image Classifying Accuracy</h3>
-<p>It is important to preface the following section by reinforcing the fact that the images the model was tested over were all augmentations of the originals/templates, adding new images to this experiment would be a wast of time due to the underlying nature of how a template matching system works.</p>
+<p>It is important to preface the following section by reinforcing the fact that the images the model was tested over were all augmentations of the originals/templates. Adding new images to this experiment would be a waste of time due to the underlying nature of how a template matching system works.</p>
 <p>The experiment aims to investigate the overall performance of the template matching system as an image classifier for the constellations in the dataset created.</p>
 <p>It was carried out as follows:</p>
 <ol>
@@ -620,29 +651,29 @@ code {
 <li>The average similarity score for each constellation with multiple augmentations with its corresponding template was calculated.</li>
 </ol>
 <p><em>Steps 1 through 5 were performed on all images in the dataset, while step 5 was only performed on images with multiple augmentations.</em></p>
-<p>The observation in the first experiment that the threshold was the largest cause for a match or not was the reason to enact this experiment and ditch the threshold entirely. Here we always assume that a constellation is in an image, and match it to the best fit.</p>
+<p>The observation in the first experiment that the threshold was the largest cause for a match or not was the reason to enact this experiment and ditch the threshold entirely. Here we always assume that a constellation is in an image and match it to the best fit.</p>
 <h4 id="results">Results</h4>
 <p>Below is the confusion matrix:</p>
 <p><img src="confusion_matrix.png" alt="confusion_matrix"></p>
-<p>Since in this experiment an image is always classified as something, the false positive and false negative count end up being identical (54). Thus the precision, recall and f1 score are all identical (0.789).</p>
-<p>On observing the confusion matrix we note that the most confusing constellations, highest FP/FN count, are gemini and ursa minor. Gemini was confused with almost all the other constellations while ursa minor was mostly confused with sculptor.</p>
-<p>the possible explenations for these observations are as follows:</p>
+<p>Since in this experiment an image is always classified as something, the false positive and false negative count end up being identical (54). Thus, the precision, recall, and f1 score are all identical (0.789).</p>
+<p>On observing the confusion matrix, we note that the most confusing constellations, with the highest FP/FN count, are Gemini and Ursa Minor. Gemini was confused with almost all the other constellations, while Ursa Minor was mostly confused with Sculptor.</p>
+<p>The possible explanations for these observations are as follows:</p>
 <ul>
-<li>gemini is a large and complex consteallation consisting of various shapes, similarites with subsections of this constellation could have caused the template matching system to classyify it as another consteallation.</li>
+<li>Gemini is a large and complex constellation consisting of various shapes. Similarities with subsections of this constellation could have caused the template matching system to classify it as another constellation.</li>
 </ul>
 <p><img src="data/original/gemini_01.png" alt="Gemini"></p>
 <ul>
-<li>Ursa Minor and sculptor have a slightly similar diagonal across the middle region of the screen shots. this could have caused the confusion in the system.</li>
+<li>Ursa Minor and Sculptor have a slightly similar diagonal across the middle region of the screenshots. This could have caused the confusion in the system.</li>
 </ul>
 <p><strong>Ursa Minor:</strong></p>
 <p><img src="data/original/ursa_minor_01.png" alt="Ursa_Minor"></p>
 <p><strong>Sculptor:</strong></p>
 <p><img src="data/original/sculptor_01.png" alt="Sculptor"></p>
-<p>Another interesting observation is found when analysing the average similarity for images with multiple augmentations grouped by the constealltion featured.</p>
+<p>Another interesting observation is found when analyzing the average similarity for images with multiple augmentations grouped by the constellation featured.</p>
 <p><img src="template_similarities.png" alt="Similarities"></p>
 <p>The average similarity score for these images was almost always lower than the lowest threshold used in the first experiment.</p>
-<p>It is also interesting to note that the average similarity for the augmented images of norma was significantly lower than the other constellations.</p>
-<p>Below is a table containing the count for each randomly selected augmenting techniques for norma</p>
+<p>It is also interesting to note that the average similarity for the augmented images of Norma was significantly lower than the other constellations.</p>
+<p>Below is a table containing the count for each randomly selected augmenting technique for Norma:</p>
 <table>
 <thead>
 <tr>
@@ -705,8 +736,477 @@ code {
 </tr>
 </tbody>
 </table>
-<p>It was noted that almost all images contained 1 of either shift or rotation, the 2 most consequential augmentations to the template matching system.</p>
-<p>The above observation provides a potential explanation to the significantly lower average similarity.</p>
+<p>It was noted that almost all images contained one of either shift or rotation, the two most consequential augmentations to the template matching system.</p>
+<p>The above observation provides a potential explanation for the significantly lower average similarity.</p>
+<h2 id="summary-of-findings">Summary of Findings</h2>
+<h3 id="template-matching-system-performance">Template Matching System Performance</h3>
+<ul>
+<li>
+<p><strong>Strengths</strong>:</p>
+<ul>
+<li>High precision with single augmentations (no false positives)</li>
+<li>Robust against intensity-based changes (contrast, brightness)</li>
+<li>Effective with mild image modifications</li>
+</ul>
+</li>
+<li>
+<p><strong>Limitations</strong>:</p>
+<ul>
+<li>Highly sensitive to geometric transformations</li>
+<li>Performance degrades significantly with multiple augmentations</li>
+<li>Requires precise alignment for accurate matching</li>
+</ul>
+</li>
+</ul>
+<h3 id="key-insights">Key Insights</h3>
+<ol>
+<li>Threshold selection is crucial for system performance</li>
+<li>Geometric transformations (rotation, shift) are the most challenging augmentations</li>
+<li>Multiple augmentations significantly reduce matching confidence</li>
+<li>System performs best with intensity-based modifications</li>
+</ol>
+<h3 id="recommendations-for-improvement">Recommendations for Improvement</h3>
+<ol>
+<li>Implement rotation-invariant template matching</li>
+<li>Consider hybrid approaches combining template matching with feature detection</li>
+<li>Explore deep learning solutions for more robust performance</li>
+</ol>
+<h2 id="deep-learning-investigation">Deep Learning Investigation</h2>
+<h3 id="literature-review-deep-learning-for-classifying-constellations">Literature Review: Deep Learning for Classifying Constellations</h3>
+<p>In recent years, deep learning techniques have gained prominence in image classification tasks due to their ability to learn complex patterns from data. Constellation classification, which involves identifying star patterns from astronomical images, poses unique challenges such as varying star intensities, noise, and rotation invariance. Unlike traditional template-matching methods, which rely on predefined patterns, deep learning approaches leverage large datasets to automatically extract and learn features that are optimal for the task. This section explores existing literature on the application of deep learning techniques for classifying constellations and similar astronomical patterns.</p>
+<h4 id="deep-learning-in-astronomy">Deep Learning in Astronomy</h4>
+<p>Deep learning, particularly convolutional neural networks (CNNs), has demonstrated success in a variety of astronomical applications, including galaxy morphology classification, star identification, and transient detection [1]. CNNs are well-suited for image-based tasks due to their ability to capture spatial hierarchies of features through convolutional layers. In the context of constellations, a CNN can identify patterns of stars by learning relationships between pixel intensities, spatial arrangements, and rotational invariances.</p>
+<p>Various studies have highlighted the efficacy of CNNs in astronomical tasks. For instance, Dieleman et al. [2] utilized CNNs to classify galaxy morphologies in the Galaxy Zoo dataset, achieving significantly better performance than traditional machine learning techniques. Similarly, Sánchez et al. [3] demonstrated the use of deep learning for star cluster classification, highlighting the model’s robustness to noise and variability in input data.</p>
+<h4 id="applications-to-constellation-classification">Applications to Constellation Classification</h4>
+<p>Although constellation classification has not been extensively studied with deep learning, related works provide valuable insights. Murtagh et al. [4] explored the use of neural networks for star pattern recognition, emphasizing the importance of preprocessing techniques such as brightness normalization and star extraction. More recently, Wang et al. [5] applied CNNs for astrometric tasks, demonstrating that data augmentation—such as rotations, translations, and scaling—significantly improves model performance on astronomical datasets.</p>
+<p>Constellations pose specific challenges, such as the sparsity of stars in an image and the presence of background noise from celestial objects. To address these challenges, researchers have employed techniques like attention mechanisms, which allow models to focus on relevant regions of the image [6]. Attention-based CNNs, for example, can isolate star patterns from surrounding noise, improving classification accuracy.</p>
+<h3 id="dataset-considerations">Dataset Considerations</h3>
+<h4 id="dataset-creation">Dataset Creation</h4>
+<p>A deep learning approach to constellation classification offers the flexibility to classify a larger variety of constellations than traditional template-matching methods. To maximize this capability, the following strategies are proposed:</p>
+<ol>
+<li>
+<p><strong>Increased Number of Constellations</strong>:
+With the scalability of deep learning models, the number of constellations can be increased as needed. For example, the dataset could include 40 constellations, significantly expanding the scope compared to the original eight constellations used in the template matching system. This variety enables the model to generalize across a broader range of patterns.</p>
+</li>
+<li>
+<p><strong>Diverse Image Sources</strong>:
+Images should be collected from multiple sources to ensure diversity in observation conditions. Real-world images and screenshots can be gathered from resources like:</p>
+<ul>
+<li><a href="https://in-the-sky.org/skymap.php">In-The-Sky</a></li>
+<li><a href="https://theskylive.com/planetarium">The Sky Live</a></li>
+<li><a href="https://stellarium-web.org/">Stellarium Web</a></li>
+</ul>
+<p>These sources provide a mix of realistic star maps and synthetic representations, which can mimic various viewing conditions such as brightness, atmospheric effects, and celestial orientations.</p>
+</li>
+<li>
+<p><strong>Complex Images</strong>:
+Unlike the template matching dataset, where images contained a single constellation, the deep learning dataset can include images with multiple constellations. This complexity reflects real-world conditions and challenges the model to accurately detect and classify constellations within the same field of view.</p>
+</li>
+<li>
+<p><strong>Bounding Box Annotations</strong>:
+Each constellation within an image should be marked with bounding boxes, enabling the model to perform both detection and classification. Annotation tools like LabelImg or Roboflow can be used to create these bounding boxes, ensuring the dataset is properly labeled for training object detection models.</p>
+</li>
+</ol>
+<h4 id="data-augmentation">Data Augmentation</h4>
+<p>To enhance the robustness and variability of the dataset, a comprehensive augmentation strategy is essential. The following points outline the augmentation process:</p>
+<ul>
+<li><strong>Diverse Techniques</strong>: A wide range of augmentations should be applied, including geometric transformations (e.g., rotations, translations), photometric adjustments (e.g., brightness, contrast), noise injection, and blurring. These techniques simulate real-world variability in imaging conditions.</li>
+<li><strong>Combination of Augmentations</strong>: Multiple augmentation techniques can be combined to create unique variations of the same image, further diversifying the dataset.</li>
+<li><strong>Axis Flipping</strong>: Each image can be flipped along the x-axis, y-axis, and both axes, effectively tripling the output for every augmentation applied.</li>
+<li><strong>Dynamic Augmentation</strong>: Applying augmentations during training ensures that each batch of data is unique, further preventing overfitting and improving the model’s generalization.</li>
+</ul>
+<h4 id="dataset-splitting">Dataset Splitting</h4>
+<p>The dataset should be divided into subsets to support deep learning training and hyperparameter tuning:</p>
+<ol>
+<li><strong>Training Set</strong>: Approximately 70% of the dataset, used for model learning.</li>
+<li><strong>Validation Set</strong>: Around 15%, used for hyperparameter tuning and monitoring model performance during training.</li>
+<li><strong>Test Set</strong>: The remaining 15%, reserved for evaluating the final model’s performance on unseen data.</li>
+</ol>
+<p>This split ensures that the model is trained and validated on separate data, reducing the risk of overfitting and providing a reliable estimate of its performance.</p>
+<p>By incorporating a larger number of constellations, diverse image sources, complex multi-constellation images, bounding box annotations, extensive augmentation, and appropriate dataset splitting, this approach ensures that the dataset is well-suited for training a deep learning model. These improvements address the limitations of the template-matching dataset and provide a solid foundation for achieving high accuracy and robustness in constellation classification.</p>
+<h3 id="model-architecture-and-implementation">Model Architecture and Implementation</h3>
+<p>The selection of an appropriate model architecture is crucial for the success of a deep learning-based constellation classification system. Given the complexity of astronomical images and the need for both detection and classification of constellations, a convolutional neural network (CNN)-based model is recommended due to its proven efficacy in image-based tasks [7]. This section discusses the choice of model architecture, the use of pre-trained models, and training considerations for this project.</p>
+<h4 id="choice-of-architecture">Choice of Architecture</h4>
+<ol>
+<li>
+<p><strong>Base Architecture</strong>:</p>
+<ul>
+<li>A CNN forms the backbone of the model due to its ability to learn hierarchical spatial features, which are essential for identifying star patterns and constellations in images [8].</li>
+<li>Architectures such as ResNet [9] or EfficientNet [10] are suitable candidates. These models balance depth, width, and computational efficiency, making them ideal for processing high-resolution astronomical images.</li>
+</ul>
+</li>
+<li>
+<p><strong>Pre-trained Models</strong>:</p>
+<ul>
+<li>A transfer learning approach is proposed, leveraging pre-trained models on large datasets such as ImageNet [11]*. Pre-trained models provide a strong starting point by capturing general visual features, reducing the need for extensive training data.</li>
+<li>The final layers of the pre-trained model will be replaced with a task-specific classifier to adapt the model for constellation classification.</li>
+</ul>
+</li>
+<li>
+<p><strong>Object Detection Framework</strong>:</p>
+<ul>
+<li>Since the dataset includes bounding box annotations, an object detection framework such as Faster R-CNN [12]*, YOLOv5 [7], or RetinaNet [8] can be employed. These frameworks combine feature extraction and bounding box regression, enabling the model to detect and classify constellations simultaneously.</li>
+</ul>
+</li>
+</ol>
+<h4 id="model-training">Model Training</h4>
+<ol>
+<li>
+<p><strong>Fine-tuning</strong>:</p>
+<ul>
+<li>The pre-trained model’s earlier layers will remain frozen initially to retain general feature representations. Fine-tuning will focus on the later layers, which are more task-specific.</li>
+<li>Gradual unfreezing of layers during training will allow the model to adapt to the unique characteristics of astronomical images.</li>
+</ul>
+</li>
+<li>
+<p><strong>Loss Functions</strong>:</p>
+<ul>
+<li>For classification, a categorical cross-entropy loss will be used to minimize errors in constellation identification.</li>
+<li>For object detection, a multi-task loss function combining classification loss and bounding box regression loss (e.g., Smooth L1 loss) will be applied [9].</li>
+</ul>
+</li>
+<li>
+<p><strong>Optimization and Hyperparameters</strong>:</p>
+<ul>
+<li>An adaptive optimization algorithm like Adam or SGD with momentum will be used for efficient convergence [10].</li>
+<li>Hyperparameter tuning will include experimenting with learning rates, batch sizes, and regularization techniques such as dropout.</li>
+</ul>
+</li>
+</ol>
+<h4 id="evaluation-metrics">Evaluation Metrics</h4>
+<p>The performance of the model will be evaluated using the following metrics:</p>
+<ol>
+<li>
+<p><strong>Classification Metrics</strong>:</p>
+<ul>
+<li>Accuracy, precision, recall, and F1-score will be used to assess the model’s ability to correctly classify constellations.</li>
+</ul>
+</li>
+<li>
+<p><strong>Detection Metrics</strong>:</p>
+<ul>
+<li>Intersection over Union (IoU) and mean Average Precision (mAP) will evaluate the model’s object detection performance.</li>
+</ul>
+</li>
+<li>
+<p><strong>Robustness Testing</strong>:</p>
+<ul>
+<li>The model’s robustness will be tested on noisy, rotated, and augmented images to simulate real-world observation conditions.</li>
+</ul>
+</li>
+</ol>
+<h4 id="computational-considerations">Computational Considerations</h4>
+<ol>
+<li>
+<p><strong>Hardware Requirements</strong>:</p>
+<ul>
+<li>Training the model will require GPU acceleration. Cloud-based platforms such as Google Colab, AWS, or Azure can be used for their computational power and scalability.</li>
+</ul>
+</li>
+<li>
+<p><strong>Training Time</strong>:</p>
+<ul>
+<li>The use of pre-trained models significantly reduces training time, as the model only needs to learn task-specific features.</li>
+</ul>
+</li>
+</ol>
+<p>By leveraging pre-trained architectures, fine-tuning strategies, and a robust object detection framework, this approach balances accuracy, efficiency, and scalability. The combination of CNN-based feature extraction, bounding box regression, and extensive evaluation ensures the proposed model is well-suited for the task of constellation classification.</p>
+<h2 id="references">References</h2>
+<p>[1] Y. LeCun, Y. Bengio, and G. Hinton, “Deep learning,” Nature, vol. 521, no. 7553, pp. 436–444, May 2015.</p>
+<p>[2] S. Dieleman, J. Willett, and J. Dambre, “Rotation-invariant convolutional neural networks for galaxy morphology prediction,” Monthly Notices of the Royal Astronomical Society, vol. 450, no. 2, pp. 1441–1459, Jun. 2015.</p>
+<p>[3] E. Sánchez, A. Díaz, and C. Ruiz, “Deep learning for star cluster classification: A case study,” Astronomy &amp; Computing, vol. 34, p. 100401, Dec. 2020.</p>
+<p>[4] F. Murtagh et al., “Neural networks for star pattern recognition,” Astrophysics and Space Science, vol. 139, no. 1, pp. 123–135, Sep. 1987.</p>
+<p>[5] Q. Wang et al., “Astrometric tasks with convolutional neural networks,” Astronomy &amp; Astrophysics, vol. 650, p. A117, Jun. 2021.</p>
+<p>[6] A. Vaswani et al., “Attention is all you need,” in Proc. Advances in Neural Information Processing Systems (NeurIPS), Long Beach, CA, USA, 2017.</p>
+<p>[7] A. Bochkovskiy, C.-Y. Wang, and H.-Y. M. Liao, “YOLOv4: Optimal speed and accuracy of object detection,” <em>arXiv preprint arXiv:2004.10934</em>, Apr. 2020.</p>
+<p>[8] T.-Y. Lin et al., “Focal loss for dense object detection,” in <em>Proc. IEEE ICCV</em>, 2017, pp. 2980–2988.</p>
+<p>[9] R. Girshick, “Fast R-CNN,” in <em>Proc. IEEE ICCV</em>, 2015, pp. 1440–1448.</p>
+<p>[10] D. P. Kingma and J. Ba, “Adam: A method for stochastic optimization,” in <em>Proc. ICLR</em>, 2015.</p>
+<p>[11] J. Deng et al., “ImageNet: A large-scale hierarchical image database,” in <em>Proc. IEEE CVPR</em>, 2009, pp. 248–255.</p>
+<p>[12] S. Ren, K. He, R. Girshick, and J. Sun, “Faster R-CNN: Towards real-time object detection with region proposal networks,” <em>IEEE Trans. on PAMI</em>, vol. 39, no. 6, pp. 1137–1149, Jun. 2017.</p>
+<p>[13] Y. LeCun, Y. Bengio, and G. Hinton, “Deep learning,” <em>Nature</em>, vol. 521, no. 7553, pp. 436–444, May 2015.</p>
+<p>[14] A. Krizhevsky, I. Sutskever, and G. H. Hinton, “ImageNet classification with deep convolutional neural networks,” <em>Communications of the ACM</em>, vol. 60, no. 6, pp. 84–90, Jun. 2017.</p>
+<p>[15] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,” in <em>Proc. IEEE CVPR</em>, 2016, pp. 770–778.</p>
+<p>[16] M. Tan and Q. Le, “EfficientNet: Rethinking model scaling for convolutional neural networks,” in <em>Proc. ICML</em>, 2019, pp. 6105–6114.</p>
+<h2 id="appendix">Appendix</h2>
+<h3 id="ai-models">AI Models</h3>
+<p>Two different AI language models were used during the development of this project:</p>
+<ul>
+<li>Claude 3.5 Sonnet (Anthropic)</li>
+<li>GPT-4 (OpenAI)</li>
+</ul>
+<p>These models were selected to provide complementary perspectives and cross-reference ideas, particularly when discussing technical concepts and methodological approaches. Using multiple AI models helped ensure a more comprehensive and balanced analysis.</p>
+<h3 id="ethical-considerations">Ethical Considerations</h3>
+<h4 id="methodological-implications">Methodological Implications</h4>
+<p>The use of AI models as research tools raises questions about research methodology and reproducibility. While AI models can enhance research efficiency, their outputs may vary across different iterations or model versions. This project addressed these concerns by:</p>
+<ol>
+<li>Implementing systematic verification procedures for all AI-generated content</li>
+<li>Maintaining detailed documentation of AI model usage</li>
+<li>Cross-referencing all technical information with peer-reviewed sources</li>
+</ol>
+<h4 id="bias-and-validity-considerations">Bias and Validity Considerations</h4>
+<p>AI language models inherently carry biases from their training data and architectures (Bender et al., 2021). To mitigate these potential biases, this research:</p>
+<ul>
+<li>Employed multiple AI models to cross-validate information</li>
+<li>Verified technical implementations through empirical testing</li>
+<li>Maintained clear boundaries between AI-assisted content and original research findings</li>
+</ul>
+<h4 id="academic-integrity-framework">Academic Integrity Framework</h4>
+<p>The integration of AI tools in academic work necessitates careful consideration of academic integrity principles. This research adhered to the following framework:</p>
+<ol>
+<li>Transparency: Explicit acknowledgment of AI tool usage</li>
+<li>Verification: Independent validation of all AI-generated content</li>
+<li>Attribution: Proper citation of primary sources and academic literature</li>
+<li>Originality: Clear delineation between AI-assisted and original work</li>
+</ol>
+<h4 id="data-ethics-and-privacy">Data Ethics and Privacy</h4>
+<p>While this project primarily utilized public astronomical data, the broader implications of AI usage in research contexts raise important privacy considerations. The research methodology ensured:</p>
+<ul>
+<li>Exclusive use of publicly available datasets</li>
+<li>Compliance with open-source licensing requirements</li>
+<li>Protection of intellectual property rights</li>
+</ul>
+<h3 id="methodology">Methodology</h3>
+<p>Throughout the project the development tool <em>cursor</em> was used. This facilitated the use of generative AI directly within the the IDE. Generative AI was mostly used as either a search engine replacement, or a debugging tool throughout both the development and research phases.</p>
+<p>Here are some example prompts:</p>
+<p>Prompt: &quot;there are two types of templating as far as i know,&quot;</p>
+<p>Response:
+&quot;In computer vision, there are indeed two main types of template matching:</p>
+<ol>
+<li>Feature-Based Template Matching</li>
+</ol>
+<ul>
+<li>Uses keypoint detection (like SIFT, SURF, ORB)</li>
+<li>Extracts and matches distinctive features/points</li>
+<li>More robust to rotation, scaling, and perspective changes</li>
+<li>Better for complex scenes and partial matches</li>
+<li>Example using SIFT:</li>
+</ul>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">feature_based_matching</span><span class="hljs-params">(image, template)</span>:</span>
+    sift = cv2.SIFT_create()
+    kp1, des1 = sift.detectAndCompute(template, <span class="hljs-literal">None</span>)
+    kp2, des2 = sift.detectAndCompute(image, <span class="hljs-literal">None</span>)
+
+    <span class="hljs-comment"># Match features</span>
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(des1, des2, k=<span class="hljs-number">2</span>)
+</div></code></pre>
+<ol start="2">
+<li>Pixel-Based Template Matching (What your code uses)</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">match_template</span><span class="hljs-params">(image: np.ndarray, template: np.ndarray, threshold: float = <span class="hljs-number">0.7</span>)</span>:</span>
+    <span class="hljs-comment"># ...</span>
+    methods = [cv2.TM_CCOEFF_NORMED, cv2.TM_CCORR_NORMED]
+    <span class="hljs-keyword">for</span> method <span class="hljs-keyword">in</span> methods:
+        result = cv2.matchTemplate(image, template, method)
+</div></code></pre>
+<ul>
+<li>
+<p>Uses direct pixel intensity comparisons</p>
+</li>
+<li>
+<p>Slides template over image and compares pixel values</p>
+</li>
+<li>
+<p>Less robust to transformations</p>
+</li>
+<li>
+<p>Faster and simpler</p>
+</li>
+<li>
+<p>Better for exact matches in controlled environments</p>
+</li>
+<li>
+<p>Your code uses pixel-based matching with cv2.matchTemplate(). Given the nature of constellation matching, you might get better results switching to feature-based matching since it handles rotations and scaling better. Would you like me to show how to implement that approach?
+&quot;</p>
+</li>
+</ul>
+<p>Another example is when debugging and error in the initial template matching imlementation:</p>
+<p>Prompt: &quot;no images are being processed, help me figure out why
+@Codebase&quot;</p>
+<p>Response:
+&quot;Let me help you debug why no images are being processed. Looking at the code, there are a few potential issues to check:</p>
+<ol>
+<li>First, check if your input directory structure is correct. The code expects images to be in:</li>
+</ol>
+<pre class="hljs"><code><div>    input_dir = Path(<span class="hljs-string">"data/original"</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> input_dir.exists():
+        <span class="hljs-keyword">raise</span> FileNotFoundError(<span class="hljs-string">f"Input directory '<span class="hljs-subst">{input_dir}</span>' does not exist"</span>)
+</div></code></pre>
+<p>Make sure:</p>
+<ul>
+<li>The directory data/original exists</li>
+<li>It contains .jpg images</li>
+</ul>
+<ol start="2">
+<li>The code only processes .jpg files:</li>
+</ol>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">for</span> image_path <span class="hljs-keyword">in</span> input_dir.glob(<span class="hljs-string">"*.jpg"</span>):
+</div></code></pre>
+<p>If your images are in a different format (like .png), they won't be processed.</p>
+<p>Here's how you can verify and fix these issues:</p>
+<ol>
+<li>First, verify your directory structure exists:</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+
+input_dir = Path(<span class="hljs-string">"data/original"</span>)
+print(<span class="hljs-string">f"Input directory exists: <span class="hljs-subst">{input_dir.exists()}</span>"</span>)
+print(<span class="hljs-string">f"Input directory contents: <span class="hljs-subst">{list(input_dir.glob(<span class="hljs-string">'*'</span>))}</span>"</span>)
+</div></code></pre>
+<ol start="2">
+<li>If needed, modify the image extension check to include other formats:</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-comment"># Replace line 105 with:</span>
+<span class="hljs-keyword">for</span> image_path <span class="hljs-keyword">in</span> input_dir.glob(<span class="hljs-string">"*.[jJ][pP][gG]"</span>, <span class="hljs-string">"*.[pP][nN][gG]"</span>, <span class="hljs-string">"*.[jJ][pP][eE][gG]"</span>):
+</div></code></pre>
+<ol start="3">
+<li>Add more verbose logging to help debugging:</li>
+</ol>
+<pre class="hljs"><code><div><span class="hljs-comment"># Add after line 100:</span>
+print(<span class="hljs-string">f"Looking for images in: <span class="hljs-subst">{input_dir.absolute()}</span>"</span>)
+image_files = list(input_dir.glob(<span class="hljs-string">"*.jpg"</span>))
+print(<span class="hljs-string">f"Found <span class="hljs-subst">{len(image_files)}</span> images"</span>)
+</div></code></pre>
+<p>Common issues to check:</p>
+<ol>
+<li>
+<p>Make sure you're running the script from the correct directory</p>
+</li>
+<li>
+<p>Verify image file permissions</p>
+</li>
+<li>
+<p>Confirm image files are not corrupted</p>
+</li>
+<li>
+<p>Check if the images have the correct extension (case-sensitive)</p>
+</li>
+</ol>
+<p>Let me know what you find after adding these debugging steps, and we can further diagnose the issue.&quot;</p>
+<p>Finally during the report writing process generative AI was leveraged to find papers to research for the literature review as well as a grammar checker and proof reader.</p>
+<p>Prompt: &quot;Proof read my report, outlining any improvements and suggestions youde have, keep in mind this is in academic format and i am using ieee referencing style:&quot;</p>
+<p>Response:
+&quot;I'll review your report and provide suggestions for improvement. Here's my analysis:</p>
+<p><strong>Strengths</strong></p>
+<ul>
+<li>
+<p>Well-structured with clear sections and subsystems</p>
+</li>
+<li>
+<p>Good use of tables and figures to illustrate points</p>
+</li>
+<li>
+<p>Detailed technical explanations</p>
+</li>
+<li>
+<p>Strong methodology descriptions</p>
+</li>
+<li>
+<p>Comprehensive deep learning investigation section</p>
+</li>
+</ul>
+<p><strong>Areas for Improvement</strong></p>
+<ol>
+<li>Abstract Missing</li>
+</ol>
+<ul>
+<li>Consider adding an abstract at the beginning summarizing the key points, methodology, and findings</li>
+<li>This would help readers quickly understand the scope and contributions</li>
+</ul>
+<ol start="2">
+<li>Introduction Section Missing</li>
+</ol>
+<ul>
+<li>Add an introduction section outlining:
+<ul>
+<li>Problem statement</li>
+<li>Project objectives</li>
+<li>Brief overview of approach</li>
+<li>Report structure</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>Dataset Section</li>
+</ol>
+<ul>
+<li>Consider adding quantitative metrics about the dataset (image dimensions, file formats)</li>
+<li>Include more details about the image preprocessing steps</li>
+<li>Add a brief discussion of dataset limitations</li>
+</ul>
+<ol start="4">
+<li>Reference Style Issues</li>
+</ol>
+<ul>
+<li>IEEE style requires references to be numbered in order of appearance in the text</li>
+<li>Some references are out of order (e.g., [7] appears before [1-6])</li>
+<li>In-text citations should use square brackets consistently</li>
+</ul>
+<ol start="5">
+<li>Results Presentation</li>
+</ol>
+<ul>
+<li>Consider adding error bars or confidence intervals to your metrics</li>
+<li>Include statistical significance tests where appropriate</li>
+<li>Some figures lack proper captions and numbering</li>
+</ul>
+<ol start="6">
+<li>Technical Details</li>
+</ol>
+<ul>
+<li>Add more specifics about the hardware/software used</li>
+<li>Include computational requirements and processing times</li>
+<li>Consider adding pseudocode for key algorithms</li>
+</ul>
+<ol start="7">
+<li>Conclusion Missing</li>
+</ol>
+<ul>
+<li>Add a dedicated conclusion section summarizing:
+<ul>
+<li>Key findings</li>
+<li>Limitations</li>
+<li>Future work recommendations</li>
+</ul>
+</li>
+</ul>
+<ol start="8">
+<li>Minor Issues</li>
+</ol>
+<ul>
+<li>Some inconsistent formatting in tables</li>
+<li>A few figures lack proper references in the text</li>
+<li>Some paragraphs could be broken up for better readability</li>
+<li>Consider adding a list of abbreviations/acronyms</li>
+</ul>
+<ol start="9">
+<li>IEEE Formatting</li>
+</ol>
+<ul>
+<li>Section headings should be numbered (1, 1.1, 1.1.1, etc.)</li>
+<li>Figure captions should be below figures</li>
+<li>Table captions should be above tables</li>
+<li>References need consistent formatting:</li>
+</ul>
+<pre class="hljs"><code><div>[1] A. B. Author, &quot;Title of paper,&quot; Journal Name, vol. x, no. y, pp. xxx-yyy, Month Year.
+</div></code></pre>
+<ol start="10">
+<li>Language and Style</li>
+</ol>
+<ul>
+<li>Some sentences could be more concise</li>
+<li>Use more formal academic language in places</li>
+<li>Maintain consistent tense throughout (prefer present tense for established facts)</li>
+</ul>
+<p>Would you like me to elaborate on any of these points or provide specific examples of suggested revisions?&quot;</p>
+<h3 id="improvements-errors-and-contributions">Improvements, Errors and Contributions</h3>
+<p>In this project AI helped formulate a clear understanding of the limitations and strengths of a template matching system, allowing a clear plan for dataset collection and experiment analysis to be formed before writing any code.</p>
+<p>When asking AI to help write code, more often than not it would break the system as it would not have an idea of the larger picture.</p>
+<p>It also contributed heavily in the decision making an research section behind the deep learning investigation.</p>
+<h3 id="individual-reflection">Individual Reflection</h3>
+<p>Generative AI overall made me more efficient. It stream lined my learning and research process while also providing me clear explanations of concepts I was unclear of. While overall it made me more efficient, when I tried to cut corners and have it debug my code or write my code for me it just set me back.</p>
+<p>My perspective didn't change much throughout this project, I will still continue to use AI in my research, but will not be moving to code generation full time with AI.</p>
 
 </body>
 </html>
